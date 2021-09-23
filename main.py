@@ -9,6 +9,7 @@ import DataSource.stock as ds
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     dt.say_hello()
-    ds.test.show_stock_info()
+    data = ds.test.show_stock_info()
+    # ds.test.test_requests()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

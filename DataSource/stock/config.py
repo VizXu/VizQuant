@@ -2,8 +2,8 @@ from pathlib import Path
 import os
 import sys
 
-QUOTES_CACHE_FILE = Path(__file__).parents
-QUOTES_SAVE_PATH = QUOTES_CACHE_FILE/'stock_save.csv'
+# QUOTES_CACHE_FILE = Path(__file__).parents
+# QUOTES_SAVE_PATH = QUOTES_CACHE_FILE/'stock_save.csv'
 
 EastMoneyKLines = {
     'f51': '日期',
@@ -20,15 +20,17 @@ EastMoneyKLines = {
 }
 
 EastMoneyQuotes = {
+    'f14': '股票名称',
+    'f12': '股票代码',
+    'f15': '最新价',
+    'f18': '昨日收盘',
     'f3': '涨跌幅',
     'f4': '涨跌额',
     'f5': '成交量',
     'f6': '成交额',
-    'f12': '股票代码',
+    'f8': '换手率',
+    'f9': '动态市盈率',
     'f13': '沪/深',
-    'f14': '股票名称',
-    'f15': '最新价',
-    'f18': '昨日收盘',
     'f20': '总市值',
     'f21': '流通市值',
 }
