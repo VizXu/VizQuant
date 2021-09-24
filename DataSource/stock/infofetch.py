@@ -18,7 +18,7 @@ params = (
 )
 
 
-def get_json_response_data():
+def get_all_stock_base_info():
     json_response = requests.get('http://76.push2.eastmoney.com/api/qt/clist/get',
                                  headers=EastMoneyHeaders, params=params).json()
     return pd.DataFrame(json_response['data']['diff']).rename(columns=EastMoneyQuotes)[columns]
