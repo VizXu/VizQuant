@@ -33,7 +33,8 @@ def convert_to_numbers(func: Callable):
             return o
         try:
             o = float(o)
-        except:
+        except Exception as e:
+            print(e)
             pass
         return o
     return run
