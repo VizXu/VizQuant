@@ -1,1 +1,1 @@
-from .test import get_stock_base_info
+from .test import get_all_stocks_realtime_quote

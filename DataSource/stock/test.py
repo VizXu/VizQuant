@@ -1,13 +1,8 @@
-from .infofetch import get_all_stock_base_info
-from .infofetch import Stock
+from .core import Stock
 
 
-def get_stock_base_info():
-    data = get_all_stock_base_info()
-    print(data)
-
-
-def get_all_stocks() -> None:
+def get_all_stocks_realtime_quote() -> None:
     s = Stock()
-    stocks = s.get_all_stock_info()
+    stocks = s.get_all_stock_realtime_quote()
     print(stocks)
+
