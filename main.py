@@ -9,7 +9,8 @@ import DataSource.stock as ds
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     dt.say_hello()
-    ds.test.get_all_stocks_realtime_quote()
+    # ds.test.get_all_stocks_realtime_quote()
+    ds.test.get_one_stock_quote_history()
     # data = ds.test.get_stock_base_info()
     # ds.test.test_requests()
 

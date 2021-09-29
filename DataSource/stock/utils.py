@@ -30,10 +30,3 @@ def gen_security_id(stock_code: str):
     _type = get_market_stock_type(stock_code, update=False)
     return f'{int(_type)}.{stock_code}'
 
-
-class Utils(object):
-    def __init__(self, num: int):
-        self.num = num
-
-    def __ge__(self, other):
-        return self.num > other.num

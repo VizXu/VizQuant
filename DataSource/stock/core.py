@@ -3,10 +3,10 @@ from .config import EastMoneyQuotes
 from .config import EastMoneyStockBaseInfo
 from .config import EastMoneyBills
 from .config import EastMoneyKLines
-from .utils import Utils
+from .utils import gen_security_id
 import requests
 import pandas as pd
-from typing import List,Dict,Union
+from typing import List, Dict, Union
 
 # fields = ",".join(EastMoneyQuotes.keys())
 # columns = list(EastMoneyQuotes.values())
@@ -34,6 +34,9 @@ class Stock(object):
         self.all_stock_quote_url = 'http://76.push2.eastmoney.com/api/qt/clist/get'
         self.all_stock_quote_fields = ",".join(EastMoneyQuotes.keys())
         self.all_stock_quote_columns = list(EastMoneyQuotes.values())
+        self.stock_quote_history_url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
+        self.stock_quote_history_fields = ",".join(EastMoneyKLines.keys())
+        self.stock_quote_history_columns = list(EastMoneyKLines.values())
         self.base_info_fields = ",".join(EastMoneyStockBaseInfo.keys())
         self.base_info_url = 'http://push2.eastmoney.com/api/qt/stock/get'
 
@@ -70,5 +73,38 @@ class Stock(object):
                                      headers=EastMoneyHeaders, params=all_stock_quote_params).json()
         return pd.DataFrame(json_response['data']['diff']).rename(columns=EastMoneyQuotes)[self.all_stock_quote_columns]
 
-    def get_stock_quote_history(self, stock_code: str, beg: str='20210101', end: str='20210630', klt: int = 101, fqt: int=1) -> pd.DataFrame:
-        pass
+    def get_one_stock_quote_history(self, stock_code: str, beg: str='20210101', end: str='20210630', klt: int = 101, fqt: int=1) -> pd.DataFrame:
+        """
+        获取单只股票历史k线数据，默认起始时间为2021年1月1日，结束时间为2021年6月30日
+        返回k线数据组成的pd.DataFrame
+        :param stock_code: 股票代码，str类型，如000001
+        :param beg: 起始时间
+        :param end: 结束时间
+        :param klt: k线间距，默认日k线
+                101 -> 日k线
+                102 -> 周k线
+                1   -> 1分钱k线
+                5   -> 5分钟k线
+        :param fqt: 复权方式，默认前复权
+                0 -> 不复权
+                1 -> 前复权
+                2 -> 后复权
+        :return:
+                包含历史k线的股票数据，pd.DataFrame
+        """
+        security_id = gen_security_id(stock_code)
+        one_stock_quote_history_params = (
+            ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
+            ('fields2', self.stock_quote_history_fields),
+            ('beg', beg),
+            ('end', end),
+            ('rtntype', '6'),
+            ('secid', security_id),
+            ('klt', f'{klt}'),
+            ('fqt', f'{fqt}'),
+        )
+        json_response = requests.get(self.stock_quote_history_url, headers=EastMoneyHeaders,
+                                     params=one_stock_quote_history_params).json()
+        data = json_response.get('data')
+        assert isinstance(data, object)
+        return data
