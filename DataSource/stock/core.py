@@ -7,6 +7,10 @@ from .utils import gen_security_id
 import requests
 import pandas as pd
 from typing import List, Dict, Union
+import multitasking
+from retry import retry
+from tqdm import tqdm
+
 
 # fields = ",".join(EastMoneyQuotes.keys())
 # columns = list(EastMoneyQuotes.values())
@@ -73,7 +77,8 @@ class Stock(object):
                                      headers=EastMoneyHeaders, params=all_stock_quote_params).json()
         return pd.DataFrame(json_response['data']['diff']).rename(columns=EastMoneyQuotes)[self.all_stock_quote_columns]
 
-    def get_one_stock_quote_history(self, stock_code: str, beg: str='20210101', end: str='20210630', klt: int = 101, fqt: int=1) -> pd.DataFrame:
+    def get_one_stock_quote_history(self, stock_code: str, beg: str = '20210101', end: str = '20210630', klt: int = 101,
+                                    fqt: int = 1) -> pd.DataFrame:
         """
         获取单只股票历史k线数据，默认起始时间为2021年1月1日，结束时间为2021年6月30日
         返回k线数据组成的pd.DataFrame
@@ -109,7 +114,7 @@ class Stock(object):
         assert isinstance(data, object)
         return data
 
-    def get_quote_base_info(self, stock_code : str) -> pd.Series:
+    def get_quote_base_info_single(self, stock_code: str) -> pd.Series:
         """
         获取某只股票基本信息
         :parameter
@@ -124,6 +129,31 @@ class Stock(object):
             ('fields', self.base_info_fields),
             ('secid', gen_security_id(stock_code)),
         )
-        json_response = requests.get(self.base_info_url, headers = EastMoneyHeaders, params = quote_base_info_params).json()
-        s = pd.Series(json_response['data']).rename(index = EastMoneyStockBaseInfo)
+        json_response = requests.get(self.base_info_url, headers=EastMoneyHeaders, params=quote_base_info_params).json()
+        s = pd.Series(json_response['data']).rename(index=EastMoneyStockBaseInfo)
         return s[EastMoneyStockBaseInfo.values()]
+
+    def get_quote_base_info_multi(self, stock_codes: List[str]) -> pd.DataFrame:
+        """
+        获取多只股票基本信息
+        :param stock_codes:
+            股票代码，List，可传入多只股票代码
+        :return:
+            pd.DataFrame 包含多只股票基本信息
+        """
+        ss = []
+
+        @multitasking.task
+        @retry(tries=3, delay=1)
+        def start(stock_code: str):
+            s = self.get_quote_base_info_single(stock_code)
+            ss.append(s)
+            bar.update()
+            bar.set_description(f'processing {stock_code}')
+
+        bar = tqdm(total=len(stock_codes))
+        for stock_code in stock_codes:
+            start(stock_code)
+        multitasking.wait_for_tasks()
+        df = pd.DataFrame(ss)
+        return df
