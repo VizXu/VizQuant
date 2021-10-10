@@ -108,3 +108,22 @@ class Stock(object):
         data = json_response.get('data')
         assert isinstance(data, object)
         return data
+
+    def get_quote_base_info(self, stock_code : str) -> pd.Series:
+        """
+        获取某只股票基本信息
+        :parameter
+            stock_code : 股票代码
+        :return:
+            pd.Series : 包含某只股票的基本信息
+        """
+        quote_base_info_params = (
+            ('ut', 'fa5fd1943c7b386f172d6893dbfba10b'),
+            ('invt', '2'),
+            ('fltt', '2'),
+            ('fields', self.base_info_fields),
+            ('secid', gen_security_id(stock_code)),
+        )
+        json_response = requests.get(self.base_info_url, headers = EastMoneyHeaders, params = quote_base_info_params).json()
+        s = pd.Series(json_response['data']).rename(index = EastMoneyStockBaseInfo)
+        return s[EastMoneyStockBaseInfo.values()]
