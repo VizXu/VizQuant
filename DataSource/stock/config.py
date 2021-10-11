@@ -2,8 +2,8 @@ from pathlib import Path
 import os
 import sys
 
-# QUOTES_CACHE_FILE = Path(__file__).parents
-# QUOTES_SAVE_PATH = QUOTES_CACHE_FILE/'stock_save.csv'
+QUOTES_CACHE_FILE = Path(__file__).parent
+QUOTES_SAVE_PATH = QUOTES_CACHE_FILE/'stock_quotes_cache.csv'
 
 EastMoneyKLines = {
     'f51': '日期',

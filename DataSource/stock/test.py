@@ -11,3 +11,9 @@ def get_one_stock_quote_history() -> None:
     s = Stock()
     history = s.get_one_stock_quote_history('000001')
     print(history)
+
+
+def get_quote_base_info_single() -> None:
+    s = Stock()
+    base_info = s.get_quote_base_info_single('600021')
+    print(base_info)
