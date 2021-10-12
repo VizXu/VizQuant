@@ -10,9 +10,11 @@ import DataSource.stock as ds
 if __name__ == '__main__':
     dt.say_hello()
     # ds.test.get_all_stocks_realtime_quote()
-    # ds.test.get_one_stock_quote_history()
+    ds.test.get_stock_quote_history_single()
     # data = ds.test.get_stock_base_info()
     # ds.test.test_requests()
-    ds.test.get_quote_base_info_single()
+    # ds.test.get_quote_base_info_single()
+    # ds.test.get_quote_base_info_multi()
+    # ds.test.get_quote_base_info()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

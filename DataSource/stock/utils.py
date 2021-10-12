@@ -2,7 +2,6 @@
 utils for stock
 """
 import os
-import sys
 import time
 import pandas as pd
 from .config import QUOTES_SAVE_PATH
@@ -23,13 +22,13 @@ def get_market_stock_type(stock_code: str, update=True) -> int:
         from .core import Stock
         s = Stock()
         df = s.get_all_stock_realtime_quote()
-        df.to_csv(QUOTES_SAVE_PATH, encoding='utf-8-sig', index=None)
+        df.to_csv(QUOTES_SAVE_PATH, encoding='utf-8-sig', index=False)
     elif update is False:
         if time.time() - os.path.getmtime(QUOTES_SAVE_PATH) >= 24 * 3600:
             from .core import Stock
             s = Stock()
             df = s.get_all_stock_realtime_quote()
-            df.to_csv(QUOTES_SAVE_PATH, encoding='utf-8-sig', index=None)
+            df.to_csv(QUOTES_SAVE_PATH, encoding='utf-8-sig', index=False)
     else:
         update_local_market_stock_quotes_cache_file(QUOTES_SAVE_PATH)
     df = pd.read_csv(QUOTES_SAVE_PATH, dtype={'股票代码': str})
@@ -38,7 +37,6 @@ def get_market_stock_type(stock_code: str, update=True) -> int:
         return df.loc[stock_code, '沪/深']
     update_local_market_stock_quotes_cache_file(QUOTES_SAVE_PATH)
     raise KeyError(f'股票代码{0}可能有误，请重新输入'.format(stock_code))
-    return 0
 
 
 def update_local_market_stock_quotes_cache_file(path: str = None) -> pd.DataFrame:
@@ -54,7 +52,7 @@ def update_local_market_stock_quotes_cache_file(path: str = None) -> pd.DataFram
     from .core import Stock
     s = Stock()
     df = s.get_all_stock_realtime_quote()
-    df.to_csv(path, encoding='utf-8-sig', index=None)
+    df.to_csv(path, encoding='utf-8-sig', index=False)
     return df
 
 
