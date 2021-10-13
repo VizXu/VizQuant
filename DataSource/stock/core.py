@@ -1,7 +1,7 @@
 from .config import EastMoneyHeaders
 from .config import EastMoneyQuotes
 from .config import EastMoneyStockBaseInfo
-# from .config import EastMoneyBills
+from .config import EastMoneyBills
 from .config import EastMoneyKLines
 from .utils import gen_security_id
 from .utils import update_local_market_stock_quotes_cache_file
@@ -41,7 +41,7 @@ class Stock(object):
         self.all_stock_quote_fields = ",".join(EastMoneyQuotes.keys())
         self.all_stock_quote_columns = list(EastMoneyQuotes.values())
         self.stock_quote_history_url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
-        self.stock_quote_history_fields = ",".join(EastMoneyKLines.keys())
+        self.stock_quote_history_fields = list(EastMoneyKLines.keys())
         self.stock_quote_history_columns = list(EastMoneyKLines.values())
         self.base_info_fields = ",".join(EastMoneyStockBaseInfo.keys())
         self.base_info_url = 'http://push2.eastmoney.com/api/qt/stock/get'
@@ -172,9 +172,10 @@ class Stock(object):
         end = datetime.datetime.now().strftime("%Y%m%d"),
         beg = (datetime.datetime.now() - datetime.timedelta(days=180)).strftime("%Y%m%d"),
         security_id = gen_security_id(stock_code)
+        fields = ",".join(self.stock_quote_history_fields)
         one_stock_quote_history_params = (
             ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
-            ('fields2', self.stock_quote_history_fields),
+            ('fields2', fields),
             ('beg', beg),
             ('end', end),
             ('rtntype', '6'),
@@ -185,8 +186,15 @@ class Stock(object):
         json_response = requests.get(self.stock_quote_history_url, headers=EastMoneyHeaders,
                                      params=one_stock_quote_history_params).json()
         data = json_response.get('data')
-        assert isinstance(data, object)
-        return pd.DataFrame(data)
+        if data is None:
+            return pd.DataFrame(columns=self.stock_quote_history_columns)
+        stock_name = data['name']
+        klines: List[str] = data['klines']
+        rows = [kline.split(',') for kline in klines]
+        df = pd.DataFrame(rows, columns=self.stock_quote_history_columns)
+        df.insert(0, '股票代码', [stock_code] * len(df))
+        df.insert(0, '股票名称', [stock_name] * len(df))
+        return df
 
     def get_stock_quote_history_multi(self, stock_codes: List[str],
                                       beg: str = '20210101',
@@ -194,8 +202,9 @@ class Stock(object):
                                       klt: int = 101,
                                       fqt: int = 1,
                                       tries: int = 3) -> Dict[str, pd.DataFrame]:
-        beg: str = datetime.datetime.now().strftime("%Y%m%d"),
-        end: str = (datetime.datetime.now() - datetime.timedelta(days=180)),
+        beg: str = datetime.datetime.now().strftime("%Y%m%d")
+        end: str = (datetime.datetime.now() - datetime.timedelta(days=180)).strftime("%Y%m%d")
+        print("beg = {0}, end = {1}".format(beg, end))
         dfs: Dict[str, pd.DataFrame] = {}
         total = len(stock_codes)
         if total != 0:
@@ -215,3 +224,68 @@ class Stock(object):
         multitasking.wait_for_tasks()
         pbar.close()
         return dfs
+
+    def get_stock_quote_history(self, stock_codes: Union[str, List[str]],
+                                beg: str = '20210101',
+                                end: str = '20210701',
+                                klt: int = 101,
+                                fqt: int = 1,
+                                tries: int = 3) -> pd.DataFrame:
+        """
+        获取某只或某几只股票在时间[beg, end]区间内的k线数据
+        :param stock_codes:
+                股票代码，List类型，可以是一只或者多只
+        :param beg:
+                起始时间，默认执行当日之前半年
+        :param end:
+                结束时间，默认执行当日
+        :param klt: k线间距，默认日k线
+                101 -> 日k线
+                102 -> 周k线
+                1   -> 1分钱k线
+                5   -> 5分钟k线
+        :param fqt: 复权方式，默认前复权
+                0 -> 不复权
+                1 -> 前复权
+                2 -> 后复权
+        :param tries:
+                当网络不稳定时尝试3次获取
+        :return:
+        示例如下：
+        Processing: 0: 100%|██████████| 2/2 [00:00<00:00,  3.69it/s]
+        {'000001':      股票名称    股票代码          日期     开盘  ...    振幅    涨跌幅    涨跌额   换手率
+        0    平安银行  000001  2021-04-19  19.85  ...  6.62   4.43   0.89  0.57
+        1    平安银行  000001  2021-04-20  20.90  ...  4.91   2.58   0.54  0.43
+        2    平安银行  000001  2021-04-21  22.12  ...  4.18   6.14   1.32  0.82
+        3    平安银行  000001  2021-04-22  23.01  ...  1.97  -0.13  -0.03  0.43
+        4    平安银行  000001  2021-04-23  23.14  ...  2.54   1.36   0.31  0.42
+        ..    ...     ...         ...    ...  ...   ...    ...    ...   ...
+        112  平安银行  000001  2021-09-30  18.09  ...  2.70  -1.21  -0.22  0.41
+        113  平安银行  000001  2021-10-08  18.17  ...  4.85   3.96   0.71  0.60
+        114  平安银行  000001  2021-10-11  19.00  ...  3.97   4.08   0.76  0.75
+        115  平安银行  000001  2021-10-12  19.30  ...  2.63  -0.26  -0.05  0.53
+        116  平安银行  000001  2021-10-13  19.30  ...  3.82   1.19   0.23  0.42
+
+        [117 rows x 13 columns], '600519':      股票名称    股票代码          日期       开盘  ...    振幅    涨跌幅     涨跌额   换手率
+        0    贵州茅台  600519  2021-04-19  2035.71  ...  3.21   1.62   33.02  0.25
+        1    贵州茅台  600519  2021-04-20  2051.81  ...  2.85   0.33    6.80  0.23
+        2    贵州茅台  600519  2021-04-21  2056.71  ...  1.58  -0.71  -14.80  0.21
+        3    贵州茅台  600519  2021-04-22  2070.61  ...  2.31  -1.19  -24.50  0.21
+        4    贵州茅台  600519  2021-04-23  2036.68  ...  3.31   2.62   53.44  0.27
+        ..    ...     ...         ...      ...  ...   ...    ...     ...   ...
+        112  贵州茅台  600519  2021-09-30  1818.18  ...  2.57   0.55   10.00  0.32
+        113  贵州茅台  600519  2021-10-08  1822.42  ...  3.87   0.52    9.60  0.38
+        114  贵州茅台  600519  2021-10-11  1839.51  ...  3.20   1.50   27.52  0.30
+        115  贵州茅台  600519  2021-10-12  1866.00  ...  1.85   0.21    3.87  0.24
+        116  贵州茅台  600519  2021-10-13  1870.00  ...  4.70   3.15   58.91  0.40
+
+        [117 rows x 13 columns]}
+        """
+        beg: str = datetime.datetime.now().strftime("%Y%m%d")
+        end: str = (datetime.datetime.now() - datetime.timedelta(days=180))
+        if isinstance(stock_codes, str):
+            return self.get_stock_quote_history_single(stock_codes, beg, end, klt, fqt, tries)
+        elif hasattr(stock_codes, '__iter__'):
+            return self.get_stock_quote_history_multi(stock_codes, beg, end, klt, fqt, tries)
+        else:
+            raise TypeError(f'给定stock_codes:{0}错误'.format(stock_codes))
