@@ -1,3 +1,5 @@
+import numpy as np
+import matplotlib.pylab as plt
 from .core import Stock
 
 
@@ -44,3 +46,19 @@ def get_stock_quote_history() -> None:
     for stock in history:
         df = history[stock]
         df.to_csv('quote_history_test.csv', encoding='utf-8-sig', index=False)
+
+
+def plot_stock_quote_tendency_diagram() -> None:
+    s = Stock()
+    history = s.get_stock_quote_history(['000001'], '20150101', '20210701')
+    # print(type(history))
+    # print(history.keys())
+    # print(type(history['000001']))
+    # print(history['000001'].columns)
+    # print(history['000001']['收盘'])
+    h = history['000001']['收盘'].astype('float')
+    print(type(h[0]))
+    h = h.diff()
+    print("h.mean() = {0}, h.arv() = {1}, h.std() = {2}".format(h.mean(), h.var(), h.std()))
+    plt.plot(h)
+    plt.show()

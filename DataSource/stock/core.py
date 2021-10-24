@@ -147,8 +147,8 @@ class Stock(object):
         return pd.DataFrame(json_response['data']['diff']).rename(columns=EastMoneyQuotes)[self.all_stock_quote_columns]
 
     def get_stock_quote_history_single(self, stock_code: str,
-                                       beg: str = '20210101',
-                                       end: str = '20210701',
+                                       beg: str = None,
+                                       end: str = None,
                                        klt: int = 101,
                                        fqt: int = 1) -> pd.DataFrame:
         """
@@ -169,8 +169,10 @@ class Stock(object):
         :return:
                 包含历史k线的股票数据，pd.DataFrame
         """
-        end = datetime.datetime.now().strftime("%Y%m%d"),
-        beg = (datetime.datetime.now() - datetime.timedelta(days=180)).strftime("%Y%m%d"),
+        if end is None:
+            end = datetime.datetime.now().strftime("%Y%m%d"),
+        if beg is None:
+            beg = (datetime.datetime.now() - datetime.timedelta(days=180)).strftime("%Y%m%d"),
         security_id = gen_security_id(stock_code)
         fields = ",".join(self.stock_quote_history_fields)
         one_stock_quote_history_params = (
@@ -197,13 +199,17 @@ class Stock(object):
         return df
 
     def get_stock_quote_history_multi(self, stock_codes: List[str],
-                                      beg: str = '20210101',
-                                      end: str = '20210701',
+                                      beg: str = None,
+                                      end: str = None,
                                       klt: int = 101,
                                       fqt: int = 1,
                                       tries: int = 3) -> Dict[str, pd.DataFrame]:
-        beg: str = datetime.datetime.now().strftime("%Y%m%d")
-        end: str = (datetime.datetime.now() - datetime.timedelta(days=180)).strftime("%Y%m%d")
+        if beg is None:
+            print("beg is {}".format(beg))
+            beg: str = datetime.datetime.now().strftime("%Y%m%d")
+        if end is None:
+            print("end is {}".format(end))
+            end: str = (datetime.datetime.now() - datetime.timedelta(days=180)).strftime("%Y%m%d")
         print("beg = {0}, end = {1}".format(beg, end))
         dfs: Dict[str, pd.DataFrame] = {}
         total = len(stock_codes)
@@ -226,8 +232,8 @@ class Stock(object):
         return dfs
 
     def get_stock_quote_history(self, stock_codes: Union[str, List[str]],
-                                beg: str = '20210101',
-                                end: str = '20210701',
+                                beg: str = None,
+                                end: str = None,
                                 klt: int = 101,
                                 fqt: int = 1,
                                 tries: int = 3) -> pd.DataFrame:
@@ -281,8 +287,10 @@ class Stock(object):
 
         [117 rows x 13 columns]}
         """
-        beg: str = datetime.datetime.now().strftime("%Y%m%d")
-        end: str = (datetime.datetime.now() - datetime.timedelta(days=180))
+        if end is None:
+            end: str = datetime.datetime.now().strftime("%Y%m%d")
+        if beg is None:
+            beg: str = (datetime.datetime.now() - datetime.timedelta(days=180))
         if isinstance(stock_codes, str):
             return self.get_stock_quote_history_single(stock_codes, beg, end, klt, fqt, tries)
         elif hasattr(stock_codes, '__iter__'):
