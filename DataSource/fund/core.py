@@ -50,3 +50,28 @@ class Fund(object):
         s = pd.Series(json_response['Datas']).rename(index=self.base_columns)
         s = s.apply(lambda x: x.replace('\n', ' ').strip() if isinstance(x, str) else x)
         return s
+
+    def get_multi_funds_base_info(self, fund_codes: List[str]) -> pd.Series:
+        """
+        获取多只基金的基本面信息
+        :param fund_codes:
+            6位基金代码组成的List
+        :return:
+        pd.Series
+            包含多只基金的基本信息，以pd.Series返回
+        """
+        ss = []
+
+        @multitasking.task
+        @retry(tries=3, delay=1)
+        def start(fund_code: str) -> None:
+            s = self.get_one_fund_base_info(fund_code)
+            ss.append(s)
+            bar.update()
+            bar.set_description(f'processing {0}'.format(fund_code))
+        bar = tqdm(total = len(fund_codes))
+        for fund_code in fund_codes:
+            start(fund_code)
+        multitasking.wait_for_tasks()
+        df = pd.DataFrame(ss)
+        return df
