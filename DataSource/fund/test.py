@@ -10,3 +10,8 @@ def get_one_fund_base_info():
     fund = Fund()
     s = fund.get_one_fund_base_info('003834')
     print(s)
+
+
+def get_funds_base_info():
+    fund = Fund()
+    s = fund.get_funds_base_info(['003834', '005669', '001475'])

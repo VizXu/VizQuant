@@ -2,7 +2,7 @@ import signal
 import multitasking
 import pandas as pd
 import numpy as np
-import tqdm
+from tqdm import tqdm
 import os
 import re
 from retry import retry
@@ -69,9 +69,29 @@ class Fund(object):
             ss.append(s)
             bar.update()
             bar.set_description(f'processing {0}'.format(fund_code))
-        bar = tqdm(total = len(fund_codes))
+
+        bar = tqdm(total=len(fund_codes))
         for fund_code in fund_codes:
             start(fund_code)
         multitasking.wait_for_tasks()
         df = pd.DataFrame(ss)
         return df
+
+    def get_funds_base_info(self, fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.DataFrame]:
+        """
+        获取某只或多只基金基本面信息
+        :param fund_codes:
+            6位数的基金代码或者6位数基金代码组成的列表
+        :return:
+            Union[pd.Series, pd.DataFrame]
+            pd.Series: 包含单只基金基本面信息
+            pd.DataFrame: 包含多只基金基本面信息
+        Raises:
+            TypeError: 当fund_codes 类型不符合时抛出异常
+        """
+        if isinstance(fund_codes, str):
+            return self.get_one_fund_base_info(fund_codes)
+        elif hasattr(fund_codes, '__iter__'):
+            # print("fund_codes = {0}, len(fund_codes) is {1}".format(fund_codes, len(fund_codes)))
+            return self.get_multi_funds_base_info(fund_codes)
+        raise TypeError(f'参数有误，不符合要求，请输入6位数的基金代码或者由6位数基金代码组成的列表')

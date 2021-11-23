@@ -20,6 +20,7 @@ if __name__ == '__main__':
     # ds.test.get_quote_base_info_single()
     # ds.test.get_quote_base_info_multi()
     # ds.test.get_quote_base_info()
-    df.test.get_one_fund_base_info()
+    # df.test.get_one_fund_base_info()
+    df.test.get_funds_base_info()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
