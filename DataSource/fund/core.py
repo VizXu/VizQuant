@@ -134,6 +134,15 @@ class Fund(object):
             Union[pd.Series, pd.DataFrame]
             pd.Series: 包含单只基金基本面信息
             pd.DataFrame: 包含多只基金基本面信息
+                             基金代码        基金简称   FTYPE FEATURE BFUNDTYPE  ...  HSGRT                                 BENCH  \
+            0  003834   华夏能源革新股票A     股票型      --       001  ...  0.15%        中证内地新能源指数收益率*90%+上证国债指数收益率*10%
+            1  001475   易方达国防军工混合  混合型-偏股     211       002  ...  0.15%  申万国防军工指数收益率×70%+一年期人民币定期存款利率(税后)×30%
+            2  005669  前海开源公用事业股票     股票型     701       001  ...  0.15%   MSCI中国A股公用事业指数收益率×80%+中证全债指数收益率×20%
+
+              FINSALES INVESTMENTIDEAR INVESTMENTIDEARIMG
+            0        0              --                 --
+            1        0              --                 --
+            2        0              --                 --
         Raises:
             TypeError: 当fund_codes 类型不符合时抛出异常
         """

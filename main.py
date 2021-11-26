@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # ds.test.get_quote_base_info_multi()
     # ds.test.get_quote_base_info()
     # df.test.get_one_fund_base_info()
-    # df.test.get_funds_base_info()
-    df.test.get_all_fund_codes()
+    df.test.get_funds_base_info()
+    # df.test.get_all_fund_codes()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
