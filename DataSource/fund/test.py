@@ -15,3 +15,9 @@ def get_one_fund_base_info():
 def get_funds_base_info():
     fund = Fund()
     s = fund.get_funds_base_info(['003834', '005669', '001475'])
+
+
+def get_all_fund_codes():
+    fund = Fund()
+    s = fund.get_all_fund_codes()
+    print(s)

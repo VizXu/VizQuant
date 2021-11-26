@@ -29,6 +29,54 @@ class Fund(object):
             'FSRQ': '净值更新日期',
             'COMMENTS': '简介',
         }
+        self.all_funds_params = [('op', 'ph'), ('dt', 'kf'), ('rs', ''), ('gs', '0'),
+                                 ('sc', '6yzf'), ('st', 'desc'), ('qdii', ''), ('tabSubtype', ',,,,,'),
+                                 ('pi', '1'), ('pn', '50000'), ('dx', '1'), ('v', '0.09350685300919159'),
+                                 ]
+        self.all_funds_url = "http://fund.eastmoney.com/data/rankhandler.aspx"
+        self.all_funds_headers = {
+            'Connection': 'keep-alive',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75',
+            'Accept': '*/*',
+            'Referer': 'http://fund.eastmoney.com/data/fundranking.html',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        }
+
+    def get_all_fund_codes(self, ft: str = None) -> pd.DataFrame:
+        """
+        获取所以公募基金代码及名称
+        :param:
+            ft: str类型，可选
+            基金类型：
+                ’zq‘: 债券类型基金
+                ’gp‘: 股本类型基金
+                None: 默认全部
+        :return:
+            DataFrame
+                包含所有基金组成的DataFrame
+                 基金代码                   基金简称
+            0      000689             前海开源新经济混合A
+            1      017623                  1.50%
+            2      005669             前海开源公用事业股票
+            3      001933               华商新兴活力混合
+            4      001245               工银生态环境股票
+            ...       ...                    ...
+            12849  014090  中融添益进取3个月持有混合发起(FOF)A
+            12850  014109              融通内需驱动混合C
+            12851  303832
+            12852  013228       中邮鑫享30天滚动持有短债债券C
+            12853  013428       东兴鑫享6个月滚动持有债券发起A
+
+            [12854 rows x 2 columns]
+        """
+        if ft is not None and ft in ['gp', 'zq']:
+            self.all_funds_params.append(('ft', ft))
+        response = requests.get(self.all_funds_url, headers=self.all_funds_headers, params=self.all_funds_params)
+        # results = re.findall('(\d{6}),(.*?),', response.text)
+        columns = ['基金代码', '基金简称']
+        results = re.findall('(\d{6}),(.*?),', response.text)
+        df = pd.DataFrame(results, columns=columns)
+        return df
 
     def get_one_fund_base_info(self, fund_code: str) -> pd.Series:
         """
