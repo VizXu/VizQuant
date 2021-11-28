@@ -2,10 +2,12 @@
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import pandas as pd
 
 import DataSource.test as dt
 import DataSource.stock as ds
 import DataSource.fund as df
+import DataAnalysisAPIs.fundamentals as da
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -21,7 +23,9 @@ if __name__ == '__main__':
     # ds.test.get_quote_base_info_multi()
     # ds.test.get_quote_base_info()
     # df.test.get_one_fund_base_info()
-    df.test.get_funds_base_info()
+    # df.test.get_funds_base_info()
     # df.test.get_all_fund_codes()
+    # da.Fundamentals.get_fund_sharp_ratio(pd.Series(['003834', '005669', '001475']))
+    da.Fundamentals.get_top_sharp_ratio(10)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
