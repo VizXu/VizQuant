@@ -90,4 +90,9 @@ class Fundamentals(object):
         fund = Fund()
         all_fund_codes = fund.get_all_fund_codes()['基金代码'].values
         all_funds_info = fund.get_funds_base_info(all_fund_codes)
+        cwd = os.getcwd()
+        all_fund_basic_information_path = cwd + '/fundsInfo/'
+        os.mkdir(all_fund_basic_information_path, 0o755)
+        funds_information = all_fund_basic_information_path + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '-funds_info.csv'
         print(all_funds_info)
+        all_funds_info.to_csv(funds_information)
