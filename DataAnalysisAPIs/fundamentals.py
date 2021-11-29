@@ -93,6 +93,6 @@ class Fundamentals(object):
         cwd = os.getcwd()
         all_fund_basic_information_path = cwd + '/fundsInfo/'
         os.mkdir(all_fund_basic_information_path, 0o755)
-        funds_information = all_fund_basic_information_path + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '-funds_info.csv'
+        funds_information = all_fund_basic_information_path + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '-funds_info.csv'
         print(all_funds_info)
         all_funds_info.to_csv(funds_information)
