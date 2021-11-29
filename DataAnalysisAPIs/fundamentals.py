@@ -100,4 +100,4 @@ class Fundamentals(object):
             os.mkdir(all_fund_basic_information_path, 0o755)
         funds_information = all_fund_basic_information_path + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '-funds_info.csv'
         print(funds_information)
-        all_funds_info.to_csv(funds_information)
+        all_funds_info.to_csv(funds_information, encoding='utf-8-sig', index=None)
