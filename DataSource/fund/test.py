@@ -22,3 +22,9 @@ def get_all_fund_codes():
     fund = Fund()
     s = fund.get_all_fund_codes()
     print(s)
+
+
+def get_all_gp_fund_codes():
+    fund = Fund()
+    s = fund.get_all_fund_codes('gp')
+    print(s)

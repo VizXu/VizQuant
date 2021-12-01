@@ -1,5 +1,6 @@
 import os
 import sys
+import openpyxl
 import pandas as pd
 from typing import List, Union
 import numpy as np
@@ -39,7 +40,7 @@ class Fundamentals(object):
         return list_of_codes[:top_num]
 
     @staticmethod
-    def get_all_funds_basic_information() -> float:
+    def get_all_funds_basic_information(ft: str = 'gp') -> float:
         """
         获取市场上所有基金基本面信息
         :return:
@@ -88,9 +89,9 @@ class Fundamentals(object):
         [12884 rows x 118 columns]
         """
         fund = Fund()
-        all_fund_codes = fund.get_all_fund_codes()['基金代码'].values
+        all_fund_codes = fund.get_all_fund_codes(ft)['基金代码'].values
+        # all_fund_codes = ['003834', '005669', '001475']
         all_funds_info = fund.get_funds_base_info(all_fund_codes)
-        # all_funds_info = pd.DataFrame([[1,2,3], [4,5,6], [7,8,9]])
         cwd = os.getcwd()
         all_fund_basic_information_path = cwd + '/fundsInfo/'
         print(all_fund_basic_information_path)
@@ -98,6 +99,13 @@ class Fundamentals(object):
             print("path of {0} is already exists!".format(all_fund_basic_information_path))
         else:
             os.mkdir(all_fund_basic_information_path, 0o755)
-        funds_information = all_fund_basic_information_path + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '-funds_info.csv'
-        print(funds_information)
-        all_funds_info.to_csv(funds_information, encoding='utf-8-sig', index=None)
+        funds_information = all_fund_basic_information_path + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '-funds_info.xlsx'
+        columns = ['基金代码', '基金简称', 'FTYPE', '涨跌幅', 'LJJZ', 'MINSG', 'MAXSG', 'RISKLEVEL',
+                   'BUY', '成立日期', 'SHARP1', 'SHARP2', 'SHARP3', '基金公司', 'JJGSID', 'FBKINDEXNAME',
+                   '净值更新日期', 'ENDNAV', 'HRGRT', 'HSGRT', 'BENCH', 'INVESTMENTIDEAR']
+        sheet = pd.ExcelWriter(funds_information)
+        all_funds_info.to_excel(sheet, sheet_name='Sheet1', na_rep='', float_format=None, columns=columns, header=True,
+                                index=False, index_label=None, startrow=0, startcol=0, engine=None, merge_cells=True,
+                                encoding='utf-8-sig', inf_rep='inf', verbose=True, freeze_panes=None)
+        sheet.save()
+        # all_funds_info.to_csv(funds_information, columns=columns, encoding='utf-8-sig', index=False)
