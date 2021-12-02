@@ -109,3 +109,25 @@ class Fundamentals(object):
                                 encoding='utf-8-sig', inf_rep='inf', verbose=True, freeze_panes=None)
         sheet.save()
         # all_funds_info.to_csv(funds_information, columns=columns, encoding='utf-8-sig', index=False)
+
+    @staticmethod
+    def get_one_fund_base_info_and_store(code: str) -> None:
+        fund = Fund()
+        fund_info_df = fund.get_one_fund_base_info(code)
+        cwd = os.getcwd()
+        path = cwd + '/fundsInfo/'
+        if os.path.exists(path):
+            print("path of {0} is already exists!".format(path))
+        else:
+            os.mkdir(path, 0o755)
+        xml = path + code + '.xlsx'
+        if os.path.exists(xml):
+            print("xml of {0} file already exists, open it!".format(xml))
+            # with pd.read_excel(xml) as xml_file:
+            origin_df = pd.read_excel(xml, sheet_name=code)
+            df = [origin_df, fund_info_df]
+            new_df = pd.concat(df, axis=0)
+            new_df.to_excel(xml, sheet_name=code, index=False, header=True)
+        else:
+            # TODO
+            print("xml of {0} file not exists, create it!".format(xml))
