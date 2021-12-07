@@ -111,6 +111,14 @@ class Fundamentals(object):
         # all_funds_info.to_csv(funds_information, columns=columns, encoding='utf-8-sig', index=False)
 
     @staticmethod
+    def get_top_n_sharp_value_in_all_funds(topn: int = 20) -> pd.DataFrame:
+        fund = Fund()
+        all_fund_codes = fund.get_all_fund_codes()['基金代码'].values
+        all_funds_info = fund.get_funds_base_info(all_fund_codes)
+        sharp_series = all_funds_info['SHARP1'].astype('float64')
+        pass
+
+    @staticmethod
     def get_one_fund_base_info_and_store(code: str) -> None:
         fund = Fund()
         fund_info_df = fund.get_one_fund_base_info(code)
