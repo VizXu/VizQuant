@@ -99,7 +99,8 @@ class Fundamentals(object):
             print("path of {0} is already exists!".format(all_fund_basic_information_path))
         else:
             os.mkdir(all_fund_basic_information_path, 0o755)
-        funds_information = all_fund_basic_information_path + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '-funds_info.xlsx'
+        funds_information = all_fund_basic_information_path + datetime.now().strftime(
+            '%Y-%m-%d-%H-%M-%S') + '-funds_info.xlsx'
         columns = ['基金代码', '基金简称', 'FTYPE', '涨跌幅', 'LJJZ', 'MINSG', 'MAXSG', 'RISKLEVEL',
                    'BUY', '成立日期', 'SHARP1', 'SHARP2', 'SHARP3', '基金公司', 'JJGSID', 'FBKINDEXNAME',
                    '净值更新日期', 'ENDNAV', 'HRGRT', 'HSGRT', 'BENCH', 'INVESTMENTIDEAR']
@@ -115,7 +116,17 @@ class Fundamentals(object):
         fund = Fund()
         all_fund_codes = fund.get_all_fund_codes()['基金代码'].values
         all_funds_info = fund.get_funds_base_info(all_fund_codes)
-        sharp_series = all_funds_info['SHARP1'].astype('float64')
+        # all_funds_info = fund.get_funds_base_info(['003834', '005669', '001475', '008009', '011329'])
+        # print(all_funds_info)
+        # all_funds_info = pd.DataFrame({'A':[1,2,3,4,5], 'SHARP1':['2.1', '3.4', '0.9', '--', '2.2']})
+        all_funds_info = all_funds_info[~all_funds_info['SHARP1'].str.contains('--') == False]
+        # all_funds_info = all_funds_info[all_funds_info['SHARP1'].str.isalnum()]
+        # series = all_funds_info['SHARP1']
+        # print(series)
+        print(all_funds_info)
+        # print("before astype, type(all_funds_info['SHARP1'][100] is {0}".format(type(all_funds_info['SHARP1'][100])))
+        # all_funds_info['SHARP1'] = all_funds_info['SHARP1'].astype('float64')
+        # print("after astype, type(all_funds_info['SHARP1'][100] is {0}".format(type(all_funds_info['SHARP1'][100])))
         pass
 
     @staticmethod
