@@ -119,14 +119,12 @@ class Fundamentals(object):
         # all_funds_info = fund.get_funds_base_info(['003834', '005669', '001475', '008009', '011329'])
         # print(all_funds_info)
         # all_funds_info = pd.DataFrame({'A':[1,2,3,4,5], 'SHARP1':['2.1', '3.4', '0.9', '--', '2.2']})
-        all_funds_info = all_funds_info[~all_funds_info['SHARP1'].str.contains('--') == False]
-        # all_funds_info = all_funds_info[all_funds_info['SHARP1'].str.isalnum()]
-        # series = all_funds_info['SHARP1']
-        # print(series)
-        print(all_funds_info)
+        all_funds_info = all_funds_info[all_funds_info['SHARP1'].str.contains('-') == False]
+        # print(all_funds_info)
         # print("before astype, type(all_funds_info['SHARP1'][100] is {0}".format(type(all_funds_info['SHARP1'][100])))
         # all_funds_info['SHARP1'] = all_funds_info['SHARP1'].astype('float64')
         # print("after astype, type(all_funds_info['SHARP1'][100] is {0}".format(type(all_funds_info['SHARP1'][100])))
+        all_funds_info.sort_values(by='SHARP1', ascending=False)
         pass
 
     @staticmethod
