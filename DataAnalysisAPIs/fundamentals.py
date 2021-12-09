@@ -122,10 +122,26 @@ class Fundamentals(object):
         all_funds_info = all_funds_info[all_funds_info['SHARP1'].str.contains('-') == False]
         # print(all_funds_info)
         # print("before astype, type(all_funds_info['SHARP1'][100] is {0}".format(type(all_funds_info['SHARP1'][100])))
-        # all_funds_info['SHARP1'] = all_funds_info['SHARP1'].astype('float64')
+        all_funds_info['SHARP1'] = all_funds_info['SHARP1'].astype('float64')
         # print("after astype, type(all_funds_info['SHARP1'][100] is {0}".format(type(all_funds_info['SHARP1'][100])))
-        all_funds_info.sort_values(by='SHARP1', ascending=False)
-        pass
+        all_funds_info = all_funds_info.sort_values(by='SHARP1', ascending=False)
+        # all_funds_info = all_funds_info.iloc[:topn]
+        cwd = os.getcwd()
+        path = cwd + '/fundsInfo/'
+        if os.path.exists(path):
+            print("path of {0} is already exists!".format(path))
+        else:
+            os.mkdir(path, 0o755)
+        xml = path + datetime.now().strftime('%Y-%m-%d') + '-top-{0}'.format(topn) + '.xlsx'
+        columns = ['基金代码', '基金简称', 'FTYPE', '涨跌幅', 'LJJZ', 'MINSG', 'MAXSG', 'RISKLEVEL',
+                   'BUY', '成立日期', 'SHARP1', 'SHARP2', 'SHARP3', '基金公司', 'JJGSID', 'FBKINDEXNAME',
+                   '净值更新日期', 'ENDNAV', 'HRGRT', 'HSGRT', 'BENCH', 'INVESTMENTIDEAR']
+        sheet = pd.ExcelWriter(xml)
+        all_funds_info.to_excel(sheet, sheet_name='Top-'.format(topn), na_rep='', float_format=None, columns=columns, header=True,
+                                index=False, index_label=None, startrow=0, startcol=0, engine=None, merge_cells=True,
+                                encoding='utf-8-sig', inf_rep='inf', verbose=True, freeze_panes=None)
+        sheet.save()
+        return all_funds_info
 
     @staticmethod
     def get_one_fund_base_info_and_store(code: str) -> None:
