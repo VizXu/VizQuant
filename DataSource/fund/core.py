@@ -41,6 +41,24 @@ class Fund(object):
             'Referer': 'http://fund.eastmoney.com/data/fundranking.html',
             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
         }
+        self.history_data = {
+            'FCODE': f'{fund_code}',
+            'IsShareNet': 'true',
+            'MobileKey': '1',
+            'appType': 'ttjj',
+            'appVersion': '6.2.8',
+            'cToken': '1',
+            'deviceid': '1',
+            'pageIndex': '1',
+            'pageSize': f'{pz}',
+            'plat': 'Iphone',
+            'product': 'EFund',
+            'serverVersion': '6.2.8',
+            'uToken': '1',
+            'userId': '1',
+            'version': '6.2.8'
+        }
+        self.history_url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNHisNetList'
 
     def get_all_fund_codes(self, ft: str = None) -> pd.DataFrame:
         """
@@ -152,3 +170,32 @@ class Fund(object):
             # print("fund_codes = {0}, len(fund_codes) is {1}".format(fund_codes, len(fund_codes)))
             return self.get_multi_funds_base_info(fund_codes)
         raise TypeError(f'参数有误，不符合要求，请输入6位数的基金代码或者由6位数基金代码组成的列表')
+
+    def get_quote_history(self, fund_code: str, pz: int = 40000) -> pd.DataFrame:
+        """
+        获取基金代码净值信息数据
+        :param fund_code:
+                6位基金代码
+        :param pz:
+                可选参数，默40000页历史数据
+        :return:
+            pd.DataFrame，包含历史净值等数据
+        """
+        json_response = requests.get(self.history_url, headers=EastmoneyFundHeaders, data=self.history_data).json()
+        rows = []
+        columns = ['日期', '单位净值', '累计净值', '涨跌幅']
+        if json_response is None:
+            return pd.DataFrame(row, columns=columns)
+        datas = json_response['Datas']
+        if len(datas) == 0:
+            return pd.DataFrame(row, columns=columns)
+        for fund in datas:
+            date = fund['FSRQ']
+            rows.append({
+                '日期': date,
+                '单位净值': fund['DWJZ'],
+                '累计净值': fund['LJJZ'],
+                '涨跌幅': fund['JZZZL']
+            })
+        df = pd.DataFrame(rows)
+        return df
