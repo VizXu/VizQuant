@@ -185,10 +185,10 @@ class Fund(object):
         rows = []
         columns = ['日期', '单位净值', '累计净值', '涨跌幅']
         if json_response is None:
-            return pd.DataFrame(row, columns=columns)
+            return pd.DataFrame(rows, columns=columns)
         datas = json_response['Datas']
         if len(datas) == 0:
-            return pd.DataFrame(row, columns=columns)
+            return pd.DataFrame(rows, columns=columns)
         for fund in datas:
             date = fund['FSRQ']
             rows.append({
