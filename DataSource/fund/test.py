@@ -29,3 +29,8 @@ def get_all_gp_fund_codes():
     s = fund.get_all_fund_codes('gp')
     print(s)
 
+
+def get_fund_history():
+    fund = Fund()
+    s = fund.get_quote_history('003834')
+    print(s)

@@ -28,7 +28,8 @@ if __name__ == '__main__':
     # da.Fundamentals.get_fund_sharp_ratio(pd.Series(['003834', '005669', '001475']))
     # da.Fundamentals.get_top_sharp_ratio(10)
     # da.Fundamentals.get_all_funds_basic_information()
-    da.Fundamentals.get_top_n_sharp_value_in_all_funds(20)
+    # da.Fundamentals.get_top_n_sharp_value_in_all_funds(20)
     # df.test.get_all_gp_fund_codes()
+    df.test.get_fund_history()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

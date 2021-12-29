@@ -1,13 +1,10 @@
 import signal
 import multitasking
 import pandas as pd
-import numpy as np
 from tqdm import tqdm
-import os
 import re
 from retry import retry
 from typing import List, Union
-from datetime import datetime
 import requests
 from .config import EastmoneyFundHeaders
 
@@ -36,29 +33,12 @@ class Fund(object):
         self.all_funds_url = "http://fund.eastmoney.com/data/rankhandler.aspx"
         self.all_funds_headers = {
             'Connection': 'keep-alive',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                          'Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75',
             'Accept': '*/*',
             'Referer': 'http://fund.eastmoney.com/data/fundranking.html',
             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
         }
-        self.history_data = {
-            'FCODE': f'{fund_code}',
-            'IsShareNet': 'true',
-            'MobileKey': '1',
-            'appType': 'ttjj',
-            'appVersion': '6.2.8',
-            'cToken': '1',
-            'deviceid': '1',
-            'pageIndex': '1',
-            'pageSize': f'{pz}',
-            'plat': 'Iphone',
-            'product': 'EFund',
-            'serverVersion': '6.2.8',
-            'uToken': '1',
-            'userId': '1',
-            'version': '6.2.8'
-        }
-        self.history_url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNHisNetList'
 
     def get_all_fund_codes(self, ft: str = None) -> pd.DataFrame:
         """
@@ -145,17 +125,12 @@ class Fund(object):
 
     def get_funds_base_info(self, fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.DataFrame]:
         """
-        获取某只或多只基金基本面信息
-        :param fund_codes:
-            6位数的基金代码或者6位数基金代码组成的列表
-        :return:
-            Union[pd.Series, pd.DataFrame]
-            pd.Series: 包含单只基金基本面信息
-            pd.DataFrame: 包含多只基金基本面信息
-                             基金代码        基金简称   FTYPE FEATURE BFUNDTYPE  ...  HSGRT                                 BENCH  \
-            0  003834   华夏能源革新股票A     股票型      --       001  ...  0.15%        中证内地新能源指数收益率*90%+上证国债指数收益率*10%
-            1  001475   易方达国防军工混合  混合型-偏股     211       002  ...  0.15%  申万国防军工指数收益率×70%+一年期人民币定期存款利率(税后)×30%
-            2  005669  前海开源公用事业股票     股票型     701       001  ...  0.15%   MSCI中国A股公用事业指数收益率×80%+中证全债指数收益率×20%
+        获取某只或多只基金基本面信息 :param fund_codes: 6位数的基金代码或者6位数基金代码组成的列表 :return: Union[pd.Series, pd.DataFrame] pd.Series:
+        包含单只基金基本面信息 pd.DataFrame: 包含多只基金基本面信息 基金代码        基金简称   FTYPE FEATURE BFUNDTYPE  ...  HSGRT
+                       BENCH  \ 0  003834   华夏能源革新股票A     股票型      --       001  ...  0.15%
+                       中证内地新能源指数收益率*90%+上证国债指数收益率*10% 1  001475   易方达国防军工混合  混合型-偏股     211       002  ...  0.15%
+                       申万国防军工指数收益率×70%+一年期人民币定期存款利率(税后)×30% 2  005669  前海开源公用事业股票     股票型     701       001  ...
+                       0.15%   MSCI中国A股公用事业指数收益率×80%+中证全债指数收益率×20%
 
               FINSALES INVESTMENTIDEAR INVESTMENTIDEARIMG
             0        0              --                 --
@@ -181,7 +156,25 @@ class Fund(object):
         :return:
             pd.DataFrame，包含历史净值等数据
         """
-        json_response = requests.get(self.history_url, headers=EastmoneyFundHeaders, data=self.history_data).json()
+        history_data = {
+            'FCODE': f'{fund_code}',
+            'IsShareNet': 'true',
+            'MobileKey': '0',
+            'appType': 'ttjj',
+            'appVersion': '5.2.8',
+            'cToken': '0',
+            'deviceid': '0',
+            'pageIndex': '0',
+            'pageSize': f'{pz}',
+            'plat': 'Iphone',
+            'product': 'EFund',
+            'serverVersion': '5.2.8',
+            'uToken': '0',
+            'userId': '0',
+            'version': '5.2.8'
+        }
+        history_url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNHisNetList'
+        json_response = requests.get(history_url, headers=EastmoneyFundHeaders, data=history_data).json()
         rows = []
         columns = ['日期', '单位净值', '累计净值', '涨跌幅']
         if json_response is None:
@@ -198,4 +191,7 @@ class Fund(object):
                 '涨跌幅': fund['JZZZL']
             })
         df = pd.DataFrame(rows)
+        df['单位净值'] = pd.to_numeric(df['单位净值'], errors='coerce')
+        df['累计净值'] = pd.to_numeric(df['累计净值'], errors='coerce')
+        df['日期'] = pd.to_datetime(df['日期'], errors='coerce')
         return df
