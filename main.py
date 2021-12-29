@@ -8,6 +8,7 @@ import DataSource.test as dt
 import DataSource.stock as ds
 import DataSource.fund as df
 import DataAnalysisAPIs.fundamentals as da
+import DataView.stcokview as sv
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -30,6 +31,7 @@ if __name__ == '__main__':
     # da.Fundamentals.get_all_funds_basic_information()
     # da.Fundamentals.get_top_n_sharp_value_in_all_funds(20)
     # df.test.get_all_gp_fund_codes()
-    df.test.get_fund_history()
+    # df.test.get_fund_history()
+    sv.view_test()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
