@@ -16,9 +16,10 @@ signal.signal(signal.SIGINT, multitasking.killall)
 class Fund(object):
     def __init__(self):
         self.base_url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNNBasicInformation'
+        self.history_url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNHisNetList'
         self.base_columns = {
             'FCODE': '基金代码',
-            'SHORTNAME': '基金简称',
+            'SHORTNAME': '基金简称s',
             'ESTABDATE': '成立日期',
             'RZDF': '涨跌幅',
             'DWJZ': '最新净值',
@@ -173,8 +174,7 @@ class Fund(object):
             'userId': '0',
             'version': '5.2.8'
         }
-        history_url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNHisNetList'
-        json_response = requests.get(history_url, headers=EastmoneyFundHeaders, data=history_data).json()
+        json_response = requests.get(self.history_url, headers=EastmoneyFundHeaders, data=history_data).json()
         rows = []
         columns = ['日期', '单位净值', '累计净值', '涨跌幅']
         if json_response is None:
