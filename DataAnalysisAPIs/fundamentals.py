@@ -90,7 +90,7 @@ class Fundamentals(object):
         """
         fund = Fund()
         all_fund_codes = fund.get_all_fund_codes(ft)['基金代码'].values
-        # all_fund_codes = ['003834', '005669', '001475']
+        all_fund_codes = ['003834', '005669', '001475']
         all_funds_info = fund.get_funds_base_info(all_fund_codes)
         cwd = os.getcwd()
         all_fund_basic_information_path = cwd + '/fundsInfo/'
@@ -137,9 +137,11 @@ class Fundamentals(object):
                    'BUY', '成立日期', 'SHARP1', 'SHARP2', 'SHARP3', '基金公司', 'JJGSID', 'FBKINDEXNAME',
                    '净值更新日期', 'ENDNAV', 'HRGRT', 'HSGRT', 'BENCH', 'INVESTMENTIDEAR']
         sheet = pd.ExcelWriter(xml)
-        all_funds_info.to_excel(sheet, sheet_name='Top-'.format(topn), na_rep='', float_format=None, columns=columns, header=True,
-                                index=False, index_label=None, startrow=0, startcol=0, engine=None, merge_cells=True,
-                                encoding='utf-8-sig', inf_rep='inf', verbose=True, freeze_panes=None)
+        # all_funds_info.to_excel(sheet, sheet_name='Top-'.format(topn), na_rep='', float_format=None,
+        # columns=columns, header=True,
+        all_funds_info.to_excel(sheet, sheet_name='Top-'.format(topn), na_rep='', float_format=None, header=True,
+                                 index=False, index_label=None, startrow=0, startcol=0, engine=None, merge_cells=True,
+                                 encoding='utf-8-sig', inf_rep='inf', verbose=True, freeze_panes=None)
         sheet.save()
         return all_funds_info
 
