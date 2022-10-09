@@ -12,6 +12,7 @@ import multitasking
 from retry import retry
 from tqdm import tqdm
 import datetime
+from jsonpath import jsonpath
 
 
 # fields = ",".join(EastMoneyQuotes.keys())
@@ -45,6 +46,9 @@ class Stock(object):
         self.stock_quote_history_columns = list(EastMoneyKLines.values())
         self.base_info_fields = ",".join(EastMoneyStockBaseInfo.keys())
         self.base_info_url = 'http://push2.eastmoney.com/api/qt/stock/get'
+        self.stock_bill_fields = ",".join(list(EastMoneyBills.keys()))
+        self.stock_bill_columns = list(EastMoneyBills.values())
+        self.stock_bill_url = 'http://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get'
 
     def get_quote_base_info_single(self, stock_code: str) -> pd.Series:
         """
@@ -297,3 +301,38 @@ class Stock(object):
             return self.get_stock_quote_history_multi(stock_codes, beg, end, klt, fqt, tries)
         else:
             raise TypeError(f'给定stock_codes:{0}错误'.format(stock_codes))
+
+    def get_stock_history_bill(self, stock_code: str) -> pd.DataFrame:
+        """
+        获取单支股票、债券的历史单子流入流出数据
+        Parameters
+        ----------
+        stock_code : str
+            股票、债券代码
+        Returns
+        -------
+        DataFrame
+            沪深市场单只股票、债券历史单子流入流出数据
+        """
+        fields = self.stock_bill_fields
+        columns = self.stock_bill_columns
+        params = (
+            ('lmt', '100000'),
+            ('klt', '101'),
+            ('secid', gen_security_id(stock_code)),
+            ('fields1', 'f1,f2,f3,f7'),
+            ('fields2', fields),
+        )
+        json_response = requests.get(self.stock_bill_url, headers=EastMoneyHeaders, params=params).json()
+        klines: List[str] = jsonpath(json_response, '$..klines[:]')
+        if not klines:
+            columns.insert(0, '代码')
+            columns.insert(0, '名称')
+            return pd.DataFrame(columns=columns)
+        rows = [kline.split(',') for kline in klines]
+        name = jsonpath(json_response, '$..name')[0]
+        # code = quote_id.split('.')[-1]
+        df = pd.DataFrame(rows, columns=columns)
+        # df.insert(0, '代码', code)
+        # df.insert(0, '名称', name)
+        return df
